@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head id="Head">
+    <title>Demonstration how programatically select grid row which are not on the first page</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/redmond/jquery-ui.css" />
+    <!--<link rel="stylesheet" type="text/css" href="http://www.ok-soft-gmbh.com/jqGrid/jquery.jqGrid-3.7.2/src/css/ui.jqgrid.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.ok-soft-gmbh.com/jqGrid/jquery.jqGrid-3.7.2/src/css/jquery.searchFilter.css" />-->
+    <link rel="stylesheet" type="text/css" href="http://www.ok-soft-gmbh.com/jqGrid/jquery.jqGrid-3.7.2/css/ui.jqgrid.css" />
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js"></script>
+    <!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>-->
+    <!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.js"></script>-->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="http://www.ok-soft-gmbh.com/jqGrid/jquery.jqGrid-3.7.2/src/i18n/grid.locale-en.js"></script>
+    <script type="text/javascript" src="http://www.ok-soft-gmbh.com/jqGrid/jquery.jqGrid-3.7.2/src/grid.base.js"></script>
+    <script type="text/javascript" src="http://www.ok-soft-gmbh.com/jqGrid/jquery.jqGrid-3.7.2/src/grid.common.js"></script>
+    <script type="text/javascript" src="http://www.ok-soft-gmbh.com/jqGrid/jquery.jqGrid-3.7.2/src/grid.formedit.js"></script>
+    <script type="text/javascript" src="http://www.ok-soft-gmbh.com/jqGrid/jquery.jqGrid-3.7.2/src/grid.inlinedit.js"></script>
+    <script type="text/javascript" src="http://www.ok-soft-gmbh.com/jqGrid/jquery.jqGrid-3.7.2/src/grid.custom.js"></script>
+    <script type="text/javascript" src="http://www.ok-soft-gmbh.com/jqGrid/jquery.jqGrid-3.7.2/src/jquery.fmatter.js"></script>
+    <script type="text/javascript" src="http://www.ok-soft-gmbh.com/jqGrid/jquery.jqGrid-3.7.2/src/jquery.searchFilter.js"></script>
+    <script type="text/javascript" src="http://www.ok-soft-gmbh.com/jqGrid/jquery.jqGrid-3.7.2/src/grid.jqueryui.js"></script>
+    <!--<script type="text/javascript" src="http://www.ok-soft-gmbh.com/jqGrid/jquery.jqGrid-3.7.2/js/i18n/grid.locale-en.js"></script>
+    <script type="text/javascript" src="http://www.ok-soft-gmbh.com/jqGrid/jquery.jqGrid-3.7.2/js/jquery.jqGrid.min.js"></script>-->
+    <script type="text/javascript" src="http://www.ok-soft-gmbh.com/jqGrid/json2.js"></script>
+    <script type="text/javascript">
+    //<![CDATA[
+        jQuery(document).ready(function () {
+            var grid = $("#list10");
+
+            grid.jqGrid({
+                url: 'http://www.ok-soft-gmbh.com/jqGrid/DataToMultiSelect.txt',
+                datatype: 'json',
+                mtype: 'GET',
+                loadonce: true,
+                jsonReader: { repeatitems: false },
+                colModel: [
+                    { name: 'ID', key: true, width: 60, align: "center", hidden: false },
+                    { name: 'Sigla', width: 80, sortable: false, hidden: false },
+                    { name: 'Name', width: 180, sortable: false, hidden: false },
+                    { name: 'Region', width: 180, sortable: false, hidden: false }
+                ],
+                rowNum: 10,
+                rowList: [10, 20, 300],
+                multiselect: true,
+                pager: "#pager",
+                viewrecords: true,
+                gridview: true,
+                rownumbers: true,
+                height: 230,
+                caption: 'Lista province'
+            });
+
+            $("#selectAll").click(function(){
+                grid.jqGrid('resetSelection');
+                var ids = grid.jqGrid('getDataIDs');
+                for (var i=0, il=ids.length; i < il; i++) {
+                    grid.jqGrid('setSelection',ids[i], true);
+                }
+            });
+
+            $("#clear").click(function(){
+                grid.jqGrid('resetSelection');
+            });
+            $("#getSelected").click(function(){
+                var ids = grid.jqGrid('getGridParam','selarrrow');
+                if (ids.length>0) {
+                    var names = [];
+                    for (var i=0, il=ids.length; i < il; i++) {
+                        var name = grid.jqGrid('getCell', ids[i], 'Name');
+                        names.push(name);
+                    }
+                    //alert ("Names: " + names.join(", ") + "; ids: " + ids.join(", "));
+                    $("#names").html(names.join(", "));
+                    $("#dialog-confirm").dialog({
+                        height:280,
+                        modal:true,
+                        buttons:{
+                            'Cancel': function(){
+                                $(this).dialog('close');
+                            },
+                            'Confirm': function(){
+                                alert("Confirm");
+                                //alert ("Names: " + names.join(", ") + "; ids: " + ids.join(", "));
+                                /*$.ajax({
+                                    type: "POST",
+                                    url:  "/cpsb/unprocessedOrders.do",
+                                    data: { method: "releaseTowics",
+                                        orderNum: JSON.stringify(ids),
+                                        names: JSON.stringify(names)
+                                    },
+                                    dataType: "json"
+                                    success: function(msg){
+                                        alert(msg);
+                                    },
+                                    error: function(res, status, exeption) {
+                                        alert(res);
+                                    }
+                                });*/
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    //]]>
+    </script>
+</head>
+
+<body>
+<fieldset>
+<input id="getSelected" type="button" value="Get Selected"/>
+<input id="selectAll" type="button" value="Select All"/>
+<input id="clear" type="button" value="Clear Selection"/>
+</fieldset>
+<table id="list10"><tr><td/></tr></table>
+<div id="pager"/>
+
+<div style="display:none;" id="dialog-confirm" title="Confirm">
+<p><span class="ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Are you sure want send this names:</p><p><span id="names"></span></p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "name": "invoice-node-postgres",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "supervisor ./bin/www"
+  },
+  "dependencies": {
+    "body-parser": "*",
+    "cookie-parser": "*",
+    "debug": "*",
+    "express": "*",
+    "express-session":"*",
+    "ejs": "*",
+    "morgan": "*",
+    "serve-favicon": "*",
+    "json-parser": "*",
+    "cors":"*",
+    "properties-parser":"*",
+    "fs":"*",
+    "util":"*",
+    "jsonwebtoken":"*",
+    "node-rest-client":"*"
+  }
+}

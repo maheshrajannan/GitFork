@@ -1,0 +1,15 @@
+{
+  "name": "DfsGitHubUI",
+  "main": "server.js",
+  "dependencies": {
+    "ejs":"*",
+    "express": "*",
+    "path":"*",
+    "https":"*",
+    "fs":"*",
+    "debug":"*",
+    "jsonwebtoken":"*",
+    "util":"*",
+    "express-session":"*"
+  }
+}

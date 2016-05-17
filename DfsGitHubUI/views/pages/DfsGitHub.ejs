@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Template Github Project</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+
+<script>  
+  $(document).ready(function(){
+    $("span").click(function(){
+      $("ol").toggle();
+    });
+  });
+</script> 
+<script>
+function syntaxHighlight(json) {
+    if (typeof json != 'string') {
+         json = JSON.stringify(json, undefined, 2);
+    }
+    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        var cls = 'number';
+        if (/^"/.test(match)) {
+            if (/:$/.test(match)) {
+                cls = 'key';
+            } else {
+                cls = 'string';
+            }
+        } else if (/true|false/.test(match)) {
+            cls = 'boolean';
+        } else if (/null/.test(match)) {
+            cls = 'null';
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+    });
+}
+
+function output(inp) {
+    document.body.appendChild(document.createElement('pre')).innerHTML = inp;
+}
+
+/**
+Check the validity of the input field and trim for spaces.
+**/
+function trimInput(fieldId,fieldName) {
+  var fieldVal = $('#'+fieldId).val();
+  var modifiedFieldVal;
+  var isModified;
+  if(fieldVal != null && fieldVal != 'undefined') {
+    modifiedFieldVal = fieldVal.trim(); 
+    if(modifiedFieldVal != null && modifiedFieldVal != 'undefined' && modifiedFieldVal.length !== 0) {
+      modifiedFieldVal = modifiedFieldVal.replace(/ /g, '');
+    }
+  }
+  if(modifiedFieldVal != null && modifiedFieldVal != 'undefined' && modifiedFieldVal.length !== 0) {
+    $('#'+fieldId).val(modifiedFieldVal);
+    isModified = modifiedFieldVal.localeCompare(fieldVal);
+    if(isModified !== 0) {
+      alert('Spaces are trimmed for ' + fieldName + ' as '+ modifiedFieldVal +'.Please take a look!');
+      //$('#'+fieldId).focus(); This way of focus does not work on tab.
+    }
+  } else {
+    alert('Please re enter ' + fieldName);
+  }
+}
+
+</script>
+
+  <script>
+  function ConfirmEnteredValues() {
+    var confirmation;
+    var result = true;
+    var gitHubInputs;
+    document.getElementById("errors").innerHTML = "";
+    document.getElementById("confirmation").innerHTML = "";
+
+    //TODO: for the time being validating one field at a time. Search if existing repos have any other mechanism.
+    if(document.getElementById('gitHubOrganizationNameId').validity.valid) {
+    }else {
+      result = false;
+      document.getElementById("errors").innerHTML = "Please enter Git Hub Organization Name <BR/>";
+    }
+
+    //TODO: for the time being validating one field at a time. Search if existing repos have any other mechanism.
+    if(document.getElementById('artifactId').validity.valid) {
+    }else {
+      result = false;
+      document.getElementById("errors").innerHTML = document.getElementById("errors").innerHTML + "Please enter Artifact";
+    }
+
+    if (result && confirm("Are you sure entered values are correct ?") == true) {
+        confirmation = "You pressed OK!, making git hub call";
+        result = true;
+    } else {
+        confirmation = "Please enter correct values";
+        result = false;
+    }
+
+    //TODO: document object does not work correctly in some browsers. Use something like jquery.
+    //TODO: localhost let it come from server.
+    document.getElementById("confirmation").innerHTML = confirmation;
+
+    if(result) {
+
+    var selectedProjectArtifacts = new Array();
+    $('input[name=projectArtifacts]:checked').map(function() {
+            selectedProjectArtifacts.push($(this).val());
+    });
+
+    console.log(selectedProjectArtifacts);
+
+
+
+    gitHubInputs = {
+      technology:$("#technologyId").val(),
+      jsonWebToken:$("#jsonWebTokenId").val(),
+      projectType:$("#projectTypeId").val(),
+      projectArtifacts: selectedProjectArtifacts,
+      container:$('#containerId').val(),
+      groupPrefix:$('#groupPrefixId').val(),
+      gitHubOrganizationName:$('#gitHubOrganizationNameId').val(),
+      artifact:$('#artifactId').val(),
+      version:$('#versionId').val()
+    };
+      /* working.*/
+      
+      $.post("https://localhost:3000/api/v3/forkDfsGit", gitHubInputs, function(result){
+          //INFO: collapse everything before writing the response.
+          $("ol").toggle();
+          //alert('ajax call is success: ' + result);
+          //var obj = {a:1, 'b':'foo', c:[false,'false',null, 'null', {d:{e:1.3e5,f:'1.3e5'}}]};
+          var str = JSON.stringify(result, undefined, 4);
+          output(syntaxHighlight(str));
+      },"json").fail(function(error) { alert('error: ' + error.responseJSON) });;
+
+    }
+
+
+    return result;
+  }
+  </script>
+  <style>
+      fieldset { 
+          margin: 0 0 20px 0; } 
+
+      p { 
+          font-weight: bold; 
+          font-size: 16px; 
+          padding: 0 0 10px 0; 
+          color: #214062; } 
+
+      fieldset legend { 
+          font-weight: bold; 
+          font-size: 16px; 
+          padding: 0 0 10px 0; 
+          color: #214062; } 
+
+      fieldset label { 
+          width: 30%; 
+          float: left; 
+          margin-right:10px; 
+          vertical-align: top; } 
+
+      fieldset ol { 
+          list-style:none; 
+          margin: 0;
+          padding: 0;} 
+
+      fieldset ol li { 
+          float:left; 
+          width:100%; 
+          padding-bottom:7px; 
+          padding-left: 0; 
+          margin-left: 0; } 
+
+      fieldset ol li input, 
+      fieldset ol li select, 
+      fieldset ol li textarea { 
+          margin-bottom: 5px; } 
+
+      form fieldset div.inputWrapper { 
+          margin-left: 180px; } 
+
+      .note { 
+          font-size: 0.9em; color: #666; }
+
+      .error{ 
+          color: #d00; }  
+      
+      #content
+        {
+          width: 200px;
+          height: 100px;
+          margin: 20px auto;
+          padding: 20px;
+          border: 1px dotted #999999;
+          overflow: hidden;
+          text-align: justify;
+        }
+      
+      pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
+      .string { color: green; }
+      .number { color: darkorange; }
+      .boolean { color: blue; }
+      .null { color: magenta; }
+      .key { color: red; }      
+
+  </style>
+</head>
+
+<body>
+
+      <p align="center">Template Project</p>
+      <span>Hide Inputs</span>
+  <fieldset>
+      <legend align="left" class="expand-one">Deployment(Nexus) Environment</legend>
+    <ol class="content-one">
+      <li>
+        <label for="technology">Technology:</label>
+        <input value="java" id="technologyId" name="technology" type="text" disabled>
+      </li>
+
+      <li>
+        <label for="jsonWebTokenId">JSON Web Token(For Security):</label>
+        <input id="jsonWebTokenId" type="text" name="Json Web Token" value="<%=jsonWebTokenValue%>" size="40" disabled></input>
+      </li>
+
+      <li>
+        <label for="projectType">Project Type:</label>
+        <select id= "projectTypeId" name="projectType">
+          <option value="standAlone" selected>Stand Alone</option>
+          <option value="multimodule">MultiModule</option>
+        </select>
+      </li>
+
+      <li>
+        <label for="projectArtifacts">Project Artifacts (jar,war,ear):</label>
+          <input type="checkbox" id="projectArtifactsId" name="projectArtifacts" value="jar" checked disabled/>jar (Java Archive)
+          <!-- TODO up on selecting multi-module add a warning and state war or ear must be selected-->
+          <input type="checkbox"  id="projectArtifactsId" name="projectArtifacts" value="war" />war (Web Archive)
+          <input type="checkbox"  id="projectArtifactsId" name="projectArtifacts" value="ear" />ear (Enterprise Archive)
+      </li>
+
+      <li>
+        <label for="container">Container:</label>
+        <select id="containerId" name="container">
+          <option value="tomcat" selected>Tomcat</option>
+          <option value="cloudFoundry">Cloud Foundry</option>
+          <option value="websphere">Web Sphere Application Server</option>
+          <option value="tibco">TIBCO</option>
+        </select>
+      </br>
+          Web Server (or) Application Server (or) Servlet Container (or) Platform like node js
+      </li>
+    </ol>
+  </fieldset>
+
+  <fieldset>
+    <legend align="left">Group Artifact And Version (GAV)</legend>
+    <ol class="content">
+      <li>
+        <label for="groupPrefix">Group Prefix:</label>
+        <input type="text" id="groupPrefixId" name="groupPrefix" value="com.discoverfinancial" disabled>
+        <br>
+        This will be the group prefix for all discover java projects.This value should not be changed.
+      </li>
+      <li>
+        <label for="gitHubOrganizationName">GitHub Organization Name (*):</label>
+        <input id="gitHubOrganizationNameId" name="gitHubOrganizationName" type="text"
+         placeholder="com.discoverfinancial.<GitHub Organization Name>" size="40" required
+         autofocus onchange="trimInput('gitHubOrganizationNameId','GitHub Organization Name')">
+        <br>
+        This will be suffixed to the default group fix for forming the group name as "com.discoverfinancial.GitHub Organization Name"
+      </li>
+      <li>
+        <label for="artifact">Artifact(*):</label>
+        <input type="text" id = "artifactId" name="artifact"
+         placeholder="repository name say Snake And Ladder" size="40" required
+         onchange="trimInput('artifactId','Artifact')">
+         <br>
+      </li>
+      <li>
+        <label  for="version">Version(Sim version):</label>
+        <input type="text" id="versionId" name="version" value="1.0.0" disabled><br>
+      </li>
+  </ol>
+  </fieldset>
+  <input type="submit" value = "Fork Git Project" onclick="ConfirmEnteredValues()">
+<p>
+  <strong>Note:</strong>Your Git project will be created with the values you provided. It is recommended that you enter values correctly to get a Template project tuned to your needs.
+</p>
+<!-- TODO: display fields with errors right next to it.-->
+<p id="errors"></p>
+<p id="confirmation"></p>
+<p id="result"></p>
+</body>
+</html>
